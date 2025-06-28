@@ -46,7 +46,7 @@ def setup_proxies():
     if socks_proxy_list_str:
         raw_socks_list = [p.strip() for p in socks_proxy_list_str.split(',') if p.strip()]
         if raw_socks_list:
-            print(f"Trovati {len(raw_socks_list)} SOCKS5 proxies found. They will be used in rotation.")
+            print(f"Found {len(raw_socks_list)} SOCKS5 proxies. They will be used in rotation.")
             for proxy in raw_socks_list:
                 # Automatically recognizes and converts to socks5h for remote DNS resolution
                 final_proxy_url = proxy
@@ -295,7 +295,7 @@ def resolve_m3u8_link(url, headers=None):
         final_headers_for_resolving['Origin'] = baseurl
 
         # STEP 1: Query the stream page to find Player 2
-        print(f"Passo 1: Richiesta a {stream_url}")
+        print(f"Step 1: Request to {stream_url}")
         response = requests.get(stream_url, headers=final_headers_for_resolving, timeout=REQUEST_TIMEOUT, proxies=get_proxy_for_url(stream_url), verify=VERIFY_SSL)
         response.raise_for_status()
 
@@ -357,10 +357,10 @@ def resolve_m3u8_link(url, headers=None):
             auth_php_b64 = re.findall(r'(?s)b = atob\("([^"]*)', iframe_content)[0]
             auth_php = base64.b64decode(auth_php_b64).decode('utf-8')
 
-            print(f"Parametri estratti: channel_key={channel_key}")
+            print(f"Extracted parameters: channel_key={channel_key}")
 
         except (IndexError, Exception) as e:
-            print(f"Errore estrazione parametri: {e}")
+            print(f"Error extracting parameters: {e}")
             return {"resolved_url": clean_url, "headers": current_headers}
 
         # STEP 6: Authentication Request
@@ -393,7 +393,7 @@ def resolve_m3u8_link(url, headers=None):
 
         print(f"Clean M3U8 URL built: {clean_m3u8_url}")
 
-        # Header corretti per il fetch
+        # Fixed headers for fetch
         final_headers_for_fetch = {
             'User-Agent': final_headers_for_resolving.get('User-Agent'),
             'Referer': referer_raw,
@@ -414,7 +414,7 @@ def resolve_m3u8_link(url, headers=None):
         print(f"Error while resolving: {e}")
         import traceback
         print(f"Traceback: {traceback.format_exc()}")
-        # Fallback: restituisce l'URL pulito originale
+        # Fallback: Returns the original clean URL
         return {"resolved_url": clean_url, "headers": current_headers}
 
 @app.route('/proxy/m3u')
@@ -555,7 +555,7 @@ def proxy_resolve():
         headers_query = "&".join([f"h_{quote(k)}={quote(v)}" for k, v in result["headers"].items()])
         return Response(
             f"#EXTM3U\n"
-            f"#EXTINF:-1,Canale Risolto\n"
+            f"#EXTINF:-1,Channel Solved\n"
             f"/proxy/m3u?url={quote(result['resolved_url'])}&{headers_query}",
             content_type="application/vnd.apple.mpegurl"
         )
@@ -704,7 +704,7 @@ def proxy():
         
     except requests.RequestException as e:
         proxy_used = proxy_for_request['http'] if proxy_for_request else "Nobody"
-        print(f"ERRORE: Failed to download '{m3u_url}' using proxy.")
+        print(f"ERROR: Failed to download '{m3u_url}' using proxy.")
         return f"Error downloading M3U list: {str(e)}", 500
     except Exception as e:
         return f"generic error: {str(e)}", 500
@@ -716,7 +716,7 @@ def proxy_key():
     if not key_url:
         return "Error: Missing 'url' parameter for key", 400
 
-    # Controlla se la chiave è in cache
+    # Check if the key is cached
     if key_url in KEY_CACHE:
         print(f"Cache HIT for KEY: {key_url}")
         return Response(KEY_CACHE[key_url], content_type="application/octet-stream")
@@ -733,7 +733,7 @@ def proxy_key():
         response.raise_for_status()
         key_content = response.content
 
-        # Salva la chiave nella cache
+        # Save the key in the cache
         KEY_CACHE[key_url] = key_content
         return Response(key_content, content_type="application/octet-stream")
 
