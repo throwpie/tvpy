@@ -9,7 +9,7 @@ from urllib.parse import quote_plus
 import os
 import random
 import time
-from cachetools import TTLCache, LRUCache
+from cachetools import TTLCache
 from dotenv import load_dotenv
 
 app = Flask(__name__)
